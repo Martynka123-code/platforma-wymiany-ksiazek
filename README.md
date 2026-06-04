@@ -10,14 +10,14 @@ Baza danych została zaprojektowana i zaimplementowana w systemie zarządzania b
 
 Projekt został podzielony na 4 niezależne moduły funkcjonalne:
 
-*   **Osoba 1 (Martyna): Moduł Użytkowników**
-    *   Implementacja struktury tabel `Role` oraz `Uzytkownicy`.
-    *   Wyzwalacz (Trigger) walidujący poprawność adresów e-mail (obecność `@`).
-    *   Konfiguracja bezpieczeństwa bazy danych (DCL - uprawnienia dla konta aplikacji).
-    *   Agregacje danych z użyciem złączeń do celów statystycznych.
-*   **Osoba 2 (Agata): Moduł Katalogu Książek** (Tabele: `Autorzy`, `Wydawnictwa`, `Kategorie`, `Ksiazki`; Widok pełnego katalogu; Trigger modyfikujący wielkość liter tytułów; Transakcje ACID).
-*   **Osoba 3 (Damian): Moduł Ofert i Transakcji** (Tabele: `Statusy_Ofert`, `Oferty_Uzytkownikow`, `Transakcje`; Zapytania zagnieżdżone; Trigger automatycznej zmiany statusu oferty; Poziomy izolacji transakcji).
-*   **Osoba 4 (Kacper): Moduł Społecznościowy i Dokumentacja** (Tabele: `Oceny_Transakcji`, `Recenzje_Ksiazek`; Widok rankingu; Diagram ERD; Analiza 3NF oraz scalenie dokumentacji końcowej).
+* **Osoba 1 (Martyna): Moduł Użytkowników**
+  * Implementacja struktury tabel `Role` oraz `Uzytkownicy`.
+  * Wyzwalacz (Trigger) walidujący poprawność adresów e-mail (obecność `@`).
+  * Konfiguracja bezpieczeństwa bazy danych (DCL - uprawnienia dla konta aplikacji).
+  * Agregacje danych z użyciem złączeń do celów statystycznych.
+* **Osoba 2 (Agata): Moduł Katalogu Książek** (Tabele: `Autorzy`, `Wydawnictwa`, `Kategorie`, `Ksiazki`; Widok pełnego katalogu; Trigger modyfikujący wielkość liter tytułów; Transakcje ACID).
+* **Osoba 3 (Damian): Moduł Ofert i Transakcji** (Tabele: `Statusy_Ofert`, `Oferty_Uzytkownikow`, `Transakcje`; Zapytania zagnieżdżone; Trigger automatycznej zmiany statusu oferty; Poziomy izolacji transakcji).
+* **Osoba 4 (Kacper): Moduł Społecznościowy i Dokumentacja** (Tabele: `Oceny_Transakcji`, `Recenzje_Ksiazek`; Widok rankingu; Diagram ERD; Analiza 3NF oraz scalenie dokumentacji końcowej).
 
 ---
 
@@ -51,10 +51,10 @@ platforma-wymiany-ksiazek/
 
 Podczas scalania i uruchamiania skryptu głównego `main.sql`, polecenia muszą być wykonywane w ściśle określonej kolejności ze względu na powiązania kluczami obcymi (`FOREIGN KEY`):
 
-1.  **Poziom 0 (Słowniki):** `Role`, `Autorzy`, `Wydawnictwa`, `Kategorie`, `Statusy_Ofert`.
-2.  **Poziom 1 (Zależne bezpośrednie):** `Uzytkownicy` *(wymaga tabeli Role)*, `Ksiazki`.
-3.  **Poziom 2 (Operacyjne):** `Oferty_Uzytkownikow`.
-4.  **Poziom 3 (Transakcyjne i Opinie):** `Transakcje`, `Recenzje_Ksiazek`.
-5.  **Poziom 4 (Oceny końcowe):** `Oceny_Transakcji`.
+1. **Poziom 0 (Słowniki):** `Role`, `Autorzy`, `Wydawnictwa`, `Kategorie`, `Statusy_Ofert`.
+2. **Poziom 1 (Zależne bezpośrednie):** `Uzytkownicy` *(wymaga tabeli Role)*, `Ksiazki`.
+3. **Poziom 2 (Operacyjne):** `Oferty_Uzytkownikow`.
+4. **Poziom 3 (Transakcyjne i Opinie):** `Transakcje`, `Recenzje_Ksiazek`.
+5. **Poziom 4 (Oceny końcowe):** `Oceny_Transakcji`.
 
 ---
