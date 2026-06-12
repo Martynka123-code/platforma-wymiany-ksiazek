@@ -18,7 +18,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER ochrona_ostatniego_admina
+CREATE TRIGGER ochrona_ostatniego_admina_w_bazie
 BEFORE DELETE ON Uzytkownicy
 FOR EACH ROW
 EXECUTE FUNCTION ochrona_ostatniego_admina();
