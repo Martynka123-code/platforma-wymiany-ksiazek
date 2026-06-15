@@ -17,9 +17,9 @@ INSERT INTO Role (Nazwa_Roli) VALUES
     ('Admin'), 
     ('Uzytkownik');
 
-INSERT INTO Uzytkownicy (Login, Haslo, Email, ID_Roli) VALUES 
-    ('ksiazkowymol1', 'haslo123', 'ksiazkowyMol1@wp.pl', 2);
-    ('KasiaKsiążkowa', 'Reksio123!', 'kasiak@gmail.com', 2);
-    ('Fantastic_lover', 'TrudneHaslo987', 'lover@gmail.com', 2);
-    ('Bookworm123', 'Haslo456', 'bookworm123@gmail.com', 2);
+INSERT INTO Uzytkownicy (Login, Haslo, Email, ID_Roli) VALUES
+    ('ksiazkowymol1', 'haslo123', 'ksiazkowyMol1@wp.pl', 2),
+    ('KasiaKsiążkowa', 'Reksio123!', 'kasiak@gmail.com', 2),
+    ('Fantastic_lover', 'TrudneHaslo987', 'lover@gmail.com', 2),
+    ('Bookworm123', 'Haslo456', 'bookworm123@gmail.com', 2),
     ('admin', 'RootPassword2026', 'tomek.admin@gmail.com', 1);
