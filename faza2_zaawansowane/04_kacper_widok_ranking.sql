@@ -2,7 +2,7 @@ CREATE OR REPLACE VIEW Ranking_Ksiazek AS
 SELECT 
     k.Tytul, 
     a.Nazwisko AS Autor, 
-    ROUND(AVG(r.Ocena), 2) AS Srednia_Ocena,
+    ROUND(AVG(r.Wartosc), 2) AS Srednia_Ocena,
     COUNT(r.ID_Recenzji) AS Liczba_Glosow
 FROM 
     Ksiazki k
