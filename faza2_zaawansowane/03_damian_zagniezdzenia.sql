@@ -139,6 +139,38 @@ JOIN Ksiazki k ON o.ID_Ksiazki = k.ID_Ksiazki
 -- Dołączenie tabeli Statusy_Ofert (Twój Moduł)
 JOIN Statusy_Ofert s ON o.ID_Statusu = s.ID_Statusu;
 ---------------------------------------
+
+
+-- Czyszczenie starego widoku, jeśli istniał
+DROP VIEW IF EXISTS Widok_Pelne_Transakcje CASCADE;
+
+-- Tworzenie widoku ogólnego transakcji
+CREATE VIEW Widok_Pelne_Transakcje AS
+SELECT 
+    t.ID_Transakcji,
+    t.Data_Wymiany,
+    t.Status_Transakcji,
+    
+    -- STRONA INICJUJĄCA (Co i kto oddaje)
+    u_od.Login AS Uzytkownik_Inicjujacy,
+    k_od.Tytul AS Ksiazka_Oddawana,
+    
+    -- STRONA ODPOWIADAJĄCA (Co i kto daje w zamian)
+    u_za.Login AS Uzytkownik_Akceptujacy,
+    k_za.Tytul AS Ksiazka_Otrzymywana
+
+FROM Transakcje t
+-- 1. Dołączenie danych dla oferty OD (ktoś daje tę książkę)
+JOIN Oferty_Uzytkownikow o_od ON t.ID_Oferty_Od = o_od.ID_Oferty
+JOIN Uzytkownicy u_od ON o_od.ID_Uzytkownika = u_od.ID_Uzytkownika
+JOIN Ksiazki k_od ON o_od.ID_Ksiazki = k_od.ID_Ksiazki
+
+-- 2. Dołączenie danych dla oferty ZA (ktoś daje tę książkę w zamian)
+JOIN Oferty_Uzytkownikow o_za ON t.ID_Oferty_Za = o_za.ID_Oferty
+JOIN Uzytkownicy u_za ON o_za.ID_Uzytkownika = u_za.ID_Uzytkownika
+JOIN Ksiazki k_za ON o_za.ID_Ksiazki = k_za.ID_Ksiazki;
+
+
 --ZAGNIEŻDŻENIA - 
 
 SELECT 
@@ -176,3 +208,8 @@ WHERE Data_Wymiany = (
     SELECT MAX(Data_Wymiany) 
     FROM Transakcje
 );
+
+
+
+
+
