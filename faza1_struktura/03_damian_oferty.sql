@@ -57,3 +57,22 @@ INSERT INTO Transakcje (Status_Transakcji, ID_Oferty_Od, ID_Oferty_Za) VALUES
 ('Zrealizowana', 1, 2),
 ('W toku', 3, 4),
 ('Zrealizowana', 5, 6);
+
+SELECT 
+    ID_Oferty, 
+    Opis_Stanu, 
+    ID_Statusu
+FROM Oferty_Uzytkownikow
+WHERE ID_Oferty IN (
+    -- Podzapytanie wyciąga numery ID ofert, 
+    -- które aktualnie są w trwających transakcjach
+    SELECT ID_Oferty_Od 
+    FROM Transakcje 
+    WHERE Status_Transakcji = 'W toku'
+    
+    UNION
+    
+    SELECT ID_Oferty_Za 
+    FROM Transakcje 
+    WHERE Status_Transakcji = 'W toku'
+);
