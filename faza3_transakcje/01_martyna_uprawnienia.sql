@@ -1,11 +1,11 @@
-CREATE USER Aplikacja_Konto WITH PASSWORD 'SilneHasloAplikacji2026!';
+-- Tworzenie ról systemowych (Dodano Administratora)
+DROP ROLE IF EXISTS Aplikacja_Konto;
+DROP ROLE IF EXISTS Administrator_Konto;
 
+CREATE ROLE Aplikacja_Konto LOGIN PASSWORD 'SilneHasloAplikacji2026!';
+CREATE ROLE Administrator_Konto LOGIN PASSWORD 'SuperAdmin2026!';
+
+-- Uprawnienia dla Aplikacji (Kod Martyny)
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO Aplikacja_Konto;
-
--- 3. Jawne odebranie uprawnienia DELETE (usuwanie) na wszystkich tabelach,
--- aby aplikacja nie miała fizycznej możliwości skasowania danych z bazy
 REVOKE DELETE ON ALL TABLES IN SCHEMA public FROM Aplikacja_Konto;
-
--- 4. Nadanie uprawnień do sekwencji (Ważne dla pól typu SERIAL)
--- Aplikacja musi mieć możliwość pobierania kolejnych numerów ID (np. ID_Uzytkownika)
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO Aplikacja_Konto;
