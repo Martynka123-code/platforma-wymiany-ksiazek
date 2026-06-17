@@ -533,6 +533,7 @@ BEGIN
     INSERT INTO Ksiazki(Tytul, ISBN, Rok_Wydania, ID_Autora, ID_Wydawnictwa, ID_Kategorii)
     VALUES(p_tytul, p_isbn, p_rok::SMALLINT, v_id_autora, p_id_wydawnictwa, p_id_kategorii);
 EXCEPTION WHEN OTHERS THEN
+ROLLBACK;
     RAISE NOTICE 'Wystąpił błąd w procedurze: %', SQLERRM; RAISE;
 END;
 $$;
@@ -643,10 +644,10 @@ CALL proc_Zmien_Role_Uzytkownika(4, 1);
 
 -- Sekcja kont i ról serwerowych (zostawić jako komentarze na ograniczonej bazie studenckiej, 
 -- odkomentować wyłącznie z poziomu superużytkownika bazy 'postgres')
--- DROP ROLE IF EXISTS Aplikacja_Konto;
--- DROP ROLE IF EXISTS Administrator_Konto;
--- CREATE ROLE Aplikacja_Konto LOGIN PASSWORD 'SilneHasloAplikacji2026!';
--- CREATE ROLE Administrator_Konto LOGIN PASSWORD 'SuperAdmin2026!';
+DROP ROLE IF EXISTS Aplikacja_Konto;
+DROP ROLE IF EXISTS Administrator_Konto;
+CREATE ROLE Aplikacja_Konto LOGIN PASSWORD 'SilneHasloAplikacji2026!';
+CREATE ROLE Administrator_Konto LOGIN PASSWORD 'SuperAdmin2026!';
 
 -- Przypisywanie bezpiecznych uprawnień (DCL) do struktur bazy danych publicznej aplikacji
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO Aplikacja_Konto;
