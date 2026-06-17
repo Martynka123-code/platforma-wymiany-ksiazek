@@ -66,7 +66,7 @@ erDiagram
     }
     Recenzje_Ksiazek {
         int ID_Recenzji PK
-        int Wartosc
+        int Ocena
         text Tresc
         timestamp Data_Dodania
         int ID_Ksiazki FK
@@ -74,7 +74,7 @@ erDiagram
     }
     Oceny_Transakcji {
         int ID_Oceny PK
-        int Wartosc
+        int Ocena
         text Komentarz
         timestamp Data_Dodania
         int ID_Transakcji FK
