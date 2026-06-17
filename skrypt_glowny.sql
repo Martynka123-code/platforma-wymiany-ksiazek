@@ -1,42 +1,6 @@
--- ====================================================================
--- PLATFORMA WYMIANY KSIĄŻEK - SKRYPT MASTER (FAZY 1, 2 I 3)
--- Zintegrowany, zoptymalizowany i oczyszczony z duplikatów
--- Silnik bazy danych: PostgreSQL (psql)
--- ====================================================================
+-- PLATFORMA WYMIANY KSIĄŻEK
 
--- --------------------------------------------------------------------
--- 0. CZYSZCZENIE BAZY DANYCH (KULOODPORNE RESETOWANIE STRUKTURY)
--- --------------------------------------------------------------------
-DROP VIEW IF EXISTS Ranking_Ksiazek CASCADE;
-DROP VIEW IF EXISTS v_Ksiazki_Szczegoly CASCADE;
-DROP VIEW IF EXISTS v_Autorzy_Statystyki CASCADE;
-DROP VIEW IF EXISTS v_Kategorie_Statystyki CASCADE;
-DROP VIEW IF EXISTS Statystyki_Statusow_Ofert CASCADE;
-DROP VIEW IF EXISTS Rejestr_Aktywnych_Transakcji CASCADE;
-DROP VIEW IF EXISTS Widok_Zaangazowanie_Ofert CASCADE;
-DROP VIEW IF EXISTS Widok_Pelne_Oferty CASCADE;
-DROP VIEW IF EXISTS Widok_Pelne_Transakcje CASCADE;
-DROP VIEW IF EXISTS Widok_Oferty_W_Toku CASCADE;
-DROP VIEW IF EXISTS Widok_Najnowsza_Transakcja CASCADE;
-
-DROP TABLE IF EXISTS Oceny_Transakcji CASCADE;
-DROP TABLE IF EXISTS Recenzje_Ksiazek CASCADE;
-DROP TABLE IF EXISTS Transakcje CASCADE;
-DROP TABLE IF EXISTS Oferty_Uzytkownikow CASCADE;
-DROP TABLE IF EXISTS Ksiazki CASCADE;
-DROP TABLE IF EXISTS Uzytkownicy CASCADE;
-DROP TABLE IF EXISTS Statusy_Ofert CASCADE;
-DROP TABLE IF EXISTS Kategorie CASCADE;
-DROP TABLE IF EXISTS Wydawnictwa CASCADE;
-DROP TABLE IF EXISTS Autorzy CASCADE;
-DROP TABLE IF EXISTS Role CASCADE;
-
--- ====================================================================
--- FAZA 1: STRUKTURA TABEL (DDL) I DANE INICJALNE (DML)
--- Hierarchia zachowana według poziomów zależności kluczy obcych
--- ====================================================================
-
--- POZIOM 0: Słowniki (Brak kluczy obcych)
+-- Tabele
 CREATE TABLE Role (
     ID_Roli SERIAL PRIMARY KEY,
     Nazwa_Roli VARCHAR(30) NOT NULL UNIQUE
@@ -63,7 +27,6 @@ CREATE TABLE Statusy_Ofert (
     Nazwa VARCHAR(50) NOT NULL UNIQUE
 );
 
--- POZIOM 1: Tabele zależne bezpośrednio od Poziomu 0
 CREATE TABLE Uzytkownicy (
     ID_Uzytkownika SERIAL PRIMARY KEY,
     Login VARCHAR(50) NOT NULL UNIQUE,
@@ -84,7 +47,6 @@ CREATE TABLE Ksiazki (
     ID_Kategorii INT NOT NULL REFERENCES Kategorie(ID_Kategorii) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
--- POZIOM 2: Operacyjne tabele ofert użytkowników
 CREATE TABLE Oferty_Uzytkownikow (
     ID_Oferty SERIAL PRIMARY KEY,
     Opis_Stanu VARCHAR(255),
@@ -96,7 +58,6 @@ CREATE TABLE Oferty_Uzytkownikow (
     CONSTRAINT fk_oferty_statusy FOREIGN KEY (ID_Statusu) REFERENCES Statusy_Ofert(ID_Statusu)
 );
 
--- POZIOM 3: Transakcje wymiany oraz recenzje literackie
 CREATE TABLE Transakcje (
     ID_Transakcji SERIAL PRIMARY KEY,
     Data_Wymiany TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -118,7 +79,6 @@ CREATE TABLE Recenzje_Ksiazek (
     FOREIGN KEY (ID_Uzytkownika) REFERENCES Uzytkownicy(ID_Uzytkownika) ON DELETE CASCADE
 );
 
--- POZIOM 4: Oceny sfinalizowanych transakcji barterowych
 CREATE TABLE Oceny_Transakcji (
     ID_Oceny SERIAL PRIMARY KEY,
     Wartosc INT NOT NULL CHECK (Wartosc >= 1 AND Wartosc <= 5),
@@ -130,10 +90,7 @@ CREATE TABLE Oceny_Transakcji (
     FOREIGN KEY (ID_Oceniajacego) REFERENCES Uzytkownicy(ID_Uzytkownika) ON DELETE CASCADE
 );
 
--- --------------------------------------------------------------------
--- ZASILANIE BAZY DANYCH (WSTAWIANIE REKORDÓW TESTOWYCH)
--- --------------------------------------------------------------------
--- Wpisywanie danych do słowników
+-- Dane
 INSERT INTO Role (Nazwa_Roli) VALUES ('Admin'), ('Uzytkownik');
 INSERT INTO Statusy_Ofert (Nazwa) VALUES ('Dostępna'), ('W trakcie wymiany'), ('Wymieniona');
 
@@ -150,7 +107,6 @@ INSERT INTO Kategorie (Nazwa) VALUES
 ('Fantastyka'), ('Powieść historyczna'), ('Poezja'), ('Fantasy'), ('Dystopia'),
 ('Horror'), ('Literatura młodzieżowa'), ('Science Fiction'), ('Klasyka'), ('Literatura obyczajowa');
 
--- Wpisywanie użytkowników
 INSERT INTO Uzytkownicy (Login, Haslo, Email, ID_Roli) VALUES
 ('ksiazkowymol1', 'haslo123', 'ksiazkowyMol1@wp.pl', 2),
 ('KasiaKsiążkowa', 'Reksio123!', 'kasiak@gmail.com', 2),
@@ -158,7 +114,6 @@ INSERT INTO Uzytkownicy (Login, Haslo, Email, ID_Roli) VALUES
 ('Bookworm123', 'Haslo456', 'bookworm123@gmail.com', 2),
 ('admin', 'RootPassword2026', 'tomek.admin@gmail.com', 1);
 
--- Wpisywanie katalogu książek
 INSERT INTO Ksiazki (Tytul, ISBN, Rok_Wydania, ID_Autora, ID_Wydawnictwa, ID_Kategorii) VALUES
 ('Ostatnie życzenie', '978-83-7578-063-5', 1993, 1, 1, 1),
 ('Quo Vadis', '978-83-240-1234-5', 1896, 2, 2, 2),
@@ -171,7 +126,6 @@ INSERT INTO Ksiazki (Tytul, ISBN, Rok_Wydania, ID_Autora, ID_Wydawnictwa, ID_Kat
 ('Lalka', '978-83-777-7777-7', 1890, 9, 9, 9),
 ('Alchemik', '978-83-888-8888-8', 1988, 10, 10, 10);
 
--- Wystawianie ofert fizycznych egzemplarzy książek
 INSERT INTO Oferty_Uzytkownikow (Opis_Stanu, ID_Uzytkownika, ID_Ksiazki, ID_Statusu) VALUES
 ('Lekko zagięte rogi', 1, 1, 1),
 ('Stan idealny', 2, 2, 1),
@@ -184,13 +138,11 @@ INSERT INTO Oferty_Uzytkownikow (Opis_Stanu, ID_Uzytkownika, ID_Ksiazki, ID_Stat
 ('Drobne rysy na okładce', 4, 9, 1),
 ('Z dedykacją', 5, 10, 1);
 
--- Rejestracja początkowych transakcji (Uwaga: statusy ofert zaktualizują się za sprawą triggera AFTER INSERT)
 INSERT INTO Transakcje (Status_Transakcji, ID_Oferty_Od, ID_Oferty_Za) VALUES
 ('Zrealizowana', 1, 2),
 ('W toku', 3, 4),
 ('Zrealizowana', 5, 6);
 
--- Dodawanie recenzji oraz ocen transakcji
 INSERT INTO Recenzje_Ksiazek (Wartosc, Tresc, ID_Ksiazki, ID_Uzytkownika) VALUES
 (9, 'Niesamowita książka, polecam wszystkim fanom gatunku!', 1, 2),
 (5, 'Całkiem średnia, spodziewałem się czegoś lepszego.', 2, 1);
@@ -200,11 +152,7 @@ INSERT INTO Oceny_Transakcji (Wartosc, Komentarz, ID_Transakcji, ID_Oceniajacego
 (4, 'Wymiana udana, chociaż musieliśmy chwilę poczekać.', 2, 1);
 
 
--- ====================================================================
--- FAZA 2: ZAAWANSOWANY SQL - WIDOKI ANALITYCZNE I INTEGRACYJNE
--- ====================================================================
-
--- 1. KACPER: Widok rankingu ocenianych książek
+-- Widoki
 CREATE VIEW Ranking_Ksiazek AS
 SELECT 
     k.Tytul, 
@@ -217,7 +165,6 @@ JOIN Recenzje_Ksiazek r ON k.ID_Ksiazki = r.ID_Ksiazki
 GROUP BY k.Tytul, a.Nazwisko 
 ORDER BY Srednia_Ocena DESC;
 
--- 2. AGATA: Widok szczegółów pełnego katalogu (bez identyfikatorów cyfrowych)
 CREATE VIEW v_Ksiazki_Szczegoly AS
 SELECT 
     k.ID_Ksiazki, k.Tytul, k.ISBN, k.Rok_Wydania, 
@@ -229,7 +176,6 @@ JOIN Autorzy a ON k.ID_Autora = a.ID_Autora
 JOIN Wydawnictwa w ON k.ID_Wydawnictwa = w.ID_Wydawnictwa 
 JOIN Kategorie kat ON k.ID_Kategorii = kat.ID_Kategorii;
 
--- 3. AGATA: Widoki statystyczne dla autorów i kategorii
 CREATE VIEW v_Autorzy_Statystyki AS
 SELECT a.ID_Autora, a.Imie, a.Nazwisko, COUNT(k.ID_Ksiazki) AS Liczba_Ksiazek
 FROM Autorzy a LEFT JOIN Ksiazki k ON a.ID_Autora = k.ID_Autora
@@ -240,7 +186,6 @@ SELECT kat.ID_Kategorii, kat.Nazwa, COUNT(k.ID_Ksiazki) AS Liczba_Ksiazek
 FROM Kategorie kat LEFT JOIN Ksiazki k ON kat.ID_Kategorii = k.ID_Kategorii
 GROUP BY kat.ID_Kategorii, kat.Nazwa;
 
--- 4. DAMIAN: Widoki modułu ofert i transakcji
 CREATE VIEW Statystyki_Statusow_Ofert AS
 SELECT s.Nazwa AS Status_Oferty, COUNT(o.ID_Oferty) AS Liczba_Przypisanych_Ofert
 FROM Statusy_Ofert s LEFT JOIN Oferty_Uzytkownikow o ON s.ID_Statusu = o.ID_Statusu
@@ -255,7 +200,6 @@ SELECT o.ID_Oferty, o.ID_Uzytkownika, o.Opis_Stanu,
     (SELECT COUNT(*) FROM Transakcje t WHERE t.ID_Oferty_Od = o.ID_Oferty OR t.ID_Oferty_Za = o.ID_Oferty) AS Liczba_Podejsc_Do_Wymiany
 FROM Oferty_Uzytkownikow o ORDER BY Liczba_Podejsc_Do_Wymiany DESC;
 
--- 5. DAMIAN: Widoki ogólne (pełna integracja między modułami całego zespołu)
 CREATE VIEW Widok_Pelne_Oferty AS
 SELECT o.ID_Oferty, u.Login AS Uzytkownik_Proponujacy, k.Tytul AS Tytul_Ksiazki, o.Opis_Stanu AS Stan_Egzemplarza, s.Nazwa AS Status_Oferty
 FROM Oferty_Uzytkownikow o
@@ -275,7 +219,6 @@ JOIN Oferty_Uzytkownikow o_za ON t.ID_Oferty_Za = o_za.ID_Oferty
 JOIN Uzytkownicy u_za ON o_za.ID_Uzytkownika = u_za.ID_Uzytkownika
 JOIN Ksiazki k_za ON o_za.ID_Ksiazki = k_za.ID_Ksiazki;
 
--- 6. DAMIAN: Widoki oparte na zapytaniach zagnieżdżonych i podzapytaniach
 CREATE VIEW Widok_Oferty_W_Toku AS
 SELECT ID_Oferty, Opis_Stanu, ID_Statusu FROM Oferty_Uzytkownikow
 WHERE ID_Oferty IN (
@@ -289,12 +232,7 @@ SELECT ID_Transakcji, Status_Transakcji, ID_Oferty_Od, ID_Oferty_Za, Data_Wymian
 WHERE Data_Wymiany = (SELECT MAX(Data_Wymiany) FROM Transakcje);
 
 
--- ====================================================================
--- FAZA 2: LOGIKA PROCEDURALNA - FUNKCJE I WYZWALACZE (PL/pgSQL)
--- ====================================================================
-
--- --- MODUŁ MARTYNY ---
--- Wyzwalacz 1: Sprawdzenie poprawności e-mail (obecność znaku @)
+-- Triggery
 CREATE OR REPLACE FUNCTION sprawdzenie_poprawnosci_email() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.Email NOT LIKE '%@%' THEN 
@@ -307,7 +245,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER weryfikacja_email_przed_zapisem
 BEFORE INSERT OR UPDATE ON Uzytkownicy FOR EACH ROW EXECUTE FUNCTION sprawdzenie_poprawnosci_email();
 
--- Wyzwalacz 2: Ochrona przed usunięciem ostatniego administratora
 CREATE OR REPLACE FUNCTION ochrona_ostatniego_admina() RETURNS TRIGGER AS $$
 DECLARE
     id_roli_admin INTEGER;
@@ -327,7 +264,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER ochrona_ostatniego_admina_w_bazie
 BEFORE DELETE ON Uzytkownicy FOR EACH ROW EXECUTE FUNCTION ochrona_ostatniego_admina();
 
--- Wyzwalacz 3: Domyślna rola użytkownika przy rejestracji
 CREATE OR REPLACE FUNCTION ustawienie_domyslnej_roli() RETURNS TRIGGER AS $$
 DECLARE id_roli_domyslnej INTEGER;
 BEGIN
@@ -342,7 +278,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER ustawienie_domyslnej_roli_uzytkownik
 BEFORE INSERT ON Uzytkownicy FOR EACH ROW EXECUTE FUNCTION ustawienie_domyslnej_roli();
 
--- Wyzwalacz 4: Limit administratorów (maksymalnie 3 konta admina)
 CREATE OR REPLACE FUNCTION limit_administratorow() RETURNS TRIGGER AS $$
 DECLARE
     id_roli_admin INTEGER;
@@ -362,9 +297,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER ograniczenie_ilosci_adminow
 BEFORE INSERT OR UPDATE ON Uzytkownicy FOR EACH ROW EXECUTE FUNCTION limit_administratorow();
 
-
--- --- MODUŁ AGATY ---
--- Funkcja 1: Liczba książek danego autora
 CREATE OR REPLACE FUNCTION fn_Liczba_Ksiazek_Autora(p_id_autora INT) RETURNS INT AS $$
 DECLARE v_liczba INT;
 BEGIN
@@ -373,7 +305,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Wyzwalacz 5: Automatyczne uzupełnianie bieżącego roku wydania książki
 CREATE OR REPLACE FUNCTION fn_Ustaw_Rok() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.Rok_Wydania IS NULL THEN NEW.Rok_Wydania := EXTRACT(YEAR FROM CURRENT_DATE); END IF;
@@ -384,7 +315,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_Ustaw_Rok
 BEFORE INSERT ON Ksiazki FOR EACH ROW EXECUTE FUNCTION fn_Ustaw_Rok();
 
--- Wyzwalacz 6: Blokada usunięcia autora posiadającego powiązane pozycje książkowe
 CREATE OR REPLACE FUNCTION fn_Blokuj_Usuniecie_Autora() RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (SELECT 1 FROM Ksiazki WHERE ID_Autora = OLD.ID_Autora) THEN
@@ -397,7 +327,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_Blokuj_Usuniecie_Autora
 BEFORE DELETE ON Autorzy FOR EACH ROW EXECUTE FUNCTION fn_Blokuj_Usuniecie_Autora();
 
--- Wyzwalacz 7: Konwersja tytułów nowo wstawianych książek do wielkich liter (UPPER)
 CREATE OR REPLACE FUNCTION fn_Upper_Tytul() RETURNS TRIGGER AS $$
 BEGIN
     NEW.Tytul := UPPER(NEW.Tytul);
@@ -408,9 +337,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_Upper_Tytul
 BEFORE INSERT ON Ksiazki FOR EACH ROW EXECUTE FUNCTION fn_Upper_Tytul();
 
-
--- --- MODUŁ DAMIAN ---
--- Wyzwalacz 8: Automatyczna zmiana statusu powiązanych ofert na "Wymieniona" po zapisie transakcji
 CREATE OR REPLACE FUNCTION zaktualizuj_status_ofert() RETURNS TRIGGER AS $$
 DECLARE v_id_statusu INTEGER;
 BEGIN
@@ -423,7 +349,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_po_dodaniu_transakcji
 AFTER INSERT ON Transakcje FOR EACH ROW EXECUTE FUNCTION zaktualizuj_status_ofert();
 
--- Wyzwalacz 9: Zabezpieczenie przed barterową wymianą tej samej oferty za samą siebie
 CREATE OR REPLACE FUNCTION zapobiegaj_wymianie_tej_samej_oferty() RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.ID_Oferty_Od = NEW.ID_Oferty_Za THEN
@@ -436,7 +361,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_walidacja_id_ofert
 BEFORE INSERT OR UPDATE ON Transakcje FOR EACH ROW EXECUTE FUNCTION zapobiegaj_wymianie_tej_samej_oferty();
 
--- Wyzwalacz 10: Blokowanie podwójnej rezerwacji egzemplarzy w transakcjach "W toku"
 CREATE OR REPLACE FUNCTION zapobiegaj_podwojnej_rezerwacji() RETURNS TRIGGER AS $$
 BEGIN
     IF EXISTS (
@@ -452,7 +376,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_blokada_rezerwacji
 BEFORE INSERT ON Transakcje FOR EACH ROW EXECUTE FUNCTION zapobiegaj_podwojnej_rezerwacji();
 
--- Wyzwalacz 11: Uniemożliwianie fizycznego usuwania zrealizowanych transakcji archiwalnych
 CREATE OR REPLACE FUNCTION chron_zrealizowane_transakcje() RETURNS TRIGGER AS $$
 BEGIN
     IF OLD.Status_Transakcji = 'Zrealizowana' THEN
@@ -465,7 +388,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_blokada_usuniecia_transakcji
 BEFORE DELETE ON Transakcje FOR EACH ROW EXECUTE FUNCTION chron_zrealizowane_transakcje();
 
--- Wyzwalacz 12: Zapobieganie dublowaniu identycznych aktywnych ofert przez jednego użytkownika
 CREATE OR REPLACE FUNCTION zapobiegaj_duplikatom_ofert() RETURNS TRIGGER AS $$
 DECLARE v_id_wymieniona INT;
 BEGIN
@@ -483,9 +405,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_zablokuj_duplikaty_ofert
 BEFORE INSERT ON Oferty_Uzytkownikow FOR EACH ROW EXECUTE FUNCTION zapobiegaj_duplikatom_ofert();
 
-
--- --- MODUŁ KACPRA ---
--- Wyzwalacz 13: Sprawdzanie czy transakcja została zakończona sukcesem przed wystawieniem oceny użytkownika
 CREATE OR REPLACE FUNCTION walidacja_oceny_transakcji() RETURNS TRIGGER AS $$
 DECLARE aktualny_status VARCHAR(50);
 BEGIN
@@ -500,7 +419,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER TRG_Zablokuj_Przedwczesna_Ocene
 BEFORE INSERT ON Oceny_Transakcji FOR EACH ROW EXECUTE FUNCTION walidacja_oceny_transakcji();
 
--- Wyzwalacz 14: Ograniczenie pozwalające użytkownikowi napisać tylko jedną recenzję dla danej pozycji książkowej
 CREATE OR REPLACE FUNCTION sprawdz_podwojna_recenzje() RETURNS TRIGGER AS $$
 DECLARE ile_recenzji INT;
 BEGIN
@@ -517,12 +435,7 @@ CREATE TRIGGER TRG_Blokuj_Podwojna_Recenzje
 BEFORE INSERT ON Recenzje_Ksiazek FOR EACH ROW EXECUTE FUNCTION sprawdz_podwojna_recenzje();
 
 
--- ====================================================================
--- FAZA 2: PROCEDURY SKŁADOWANE (STORED PROCEDURES)
--- Uproszczenie operacji na bazie dla interfejsów klienckich
--- ====================================================================
-
--- Procedura A: Dynamiczne dodawanie autora wraz z jego nową książką (Zabezpieczenie typu smallint)
+-- Procedury
 CREATE OR REPLACE PROCEDURE proc_Dodaj_Autora_i_Ksiazke(
     p_imie VARCHAR(100), p_nazwisko VARCHAR(100), p_tytul VARCHAR(300),
     p_isbn VARCHAR(17), p_rok INT, p_id_wydawnictwa INT, p_id_kategorii INT
@@ -538,7 +451,6 @@ ROLLBACK;
 END;
 $$;
 
--- Procedura B: Wygodne wstawianie recenzji literackich
 CREATE OR REPLACE PROCEDURE proc_Dodaj_Recenzje(
     p_ocena INT, p_tresc TEXT, p_id_ksiazki INT, p_id_uzytkownika INT
 ) LANGUAGE plpgsql AS $$
@@ -548,7 +460,6 @@ BEGIN
 END;
 $$;
 
--- Procedura C: Inteligentne dodawanie oferty użytkownika na bazie loginów i tytułów (zamiast surowych ID)
 CREATE OR REPLACE PROCEDURE proc_Dodaj_Oferte(
     p_login VARCHAR(50), p_tytul_ksiazki VARCHAR(300), p_opis_stanu VARCHAR(255)
 ) LANGUAGE plpgsql AS $$
@@ -569,14 +480,12 @@ BEGIN
 END;
 $$;
 
--- Procedura D: Modyfikacja statusu fizycznej oferty
 CREATE OR REPLACE PROCEDURE proc_Zmien_Status_Oferty(p_id_oferty INT, p_id_statusu INT) LANGUAGE plpgsql AS $$
 BEGIN
     UPDATE Oferty_Uzytkownikow SET ID_Statusu = p_id_statusu WHERE ID_Oferty = p_id_oferty;
 END;
 $$;
 
--- Procedura E: Dodawanie nowych kont użytkowników systemu
 CREATE OR REPLACE PROCEDURE proc_Dodaj_Uzytkownika(
     p_login VARCHAR(50), p_haslo VARCHAR(255), p_email VARCHAR(100), p_id_roli INT
 ) LANGUAGE plpgsql AS $$
@@ -585,21 +494,18 @@ BEGIN
 END;
 $$;
 
--- Procedura F: Bezpieczne usuwanie recenzji książek
 CREATE OR REPLACE PROCEDURE proc_Usun_Recenzje(p_id_recenzji INT) LANGUAGE plpgsql AS $$
 BEGIN
     DELETE FROM Recenzje_Ksiazek WHERE ID_Recenzji = p_id_recenzji;
 END;
 $$;
 
--- Procedura G: Szybkie inicjowanie transakcji barterowej wymiany
 CREATE OR REPLACE PROCEDURE proc_Utworz_Transakcje(p_id_oferty_od INT, p_id_oferty_za INT) LANGUAGE plpgsql AS $$
 BEGIN
     INSERT INTO Transakcje(Status_Transakcji, ID_Oferty_Od, ID_Oferty_Za) VALUES('W toku', p_id_oferty_od, p_id_oferty_za);
 END;
 $$;
 
--- Procedura H: Zaawansowane dodawanie transakcji z pełną kontrolą i obsługą wyjątków
 CREATE OR REPLACE PROCEDURE proc_Dodaj_Transakcje(
     p_id_oferty_od INT, p_id_oferty_za INT, p_status_transakcji VARCHAR(50) DEFAULT 'W toku'
 ) LANGUAGE plpgsql AS $$
@@ -618,16 +524,13 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$;
 
--- Procedura I: Zmiana uprawnień / roli systemowej przypisanej do użytkownika
 CREATE OR REPLACE PROCEDURE proc_Zmien_Role_Uzytkownika(p_id_uzytkownika INT, p_id_nowej_roli INT) LANGUAGE plpgsql AS $$
 BEGIN
     UPDATE Uzytkownicy SET ID_Roli = p_id_nowej_roli WHERE ID_Uzytkownika = p_id_uzytkownika;
 END;
 $$;
 
--- --------------------------------------------------------------------
--- DEMONSTRACJA WYWOŁAŃ PROCEDUR (TEST POPRAWNOŚCI LOGIKI FAZY 2)
--- --------------------------------------------------------------------
+-- Testy
 CALL proc_Dodaj_Autora_i_Ksiazke('Terry', 'Pratchett', 'Kolor magii', '978-83-123-4567-8', 1983, 1, 1);
 CALL proc_Dodaj_Recenzje(10, 'Absolutny klasyk literatury fantasy!', 1, 1);
 CALL proc_Dodaj_Oferte('admin', 'Kolor magii', 'Stan idealny, raz czytana');
@@ -637,19 +540,12 @@ CALL proc_Utworz_Transakcje(7, 8);
 CALL proc_Zmien_Role_Uzytkownika(4, 1);
 
 
--- ====================================================================
--- FAZA 3: BEZPIECZEŃSTWO SYSTEMOWE I TRANSAKCJE ACID (DCL)
--- Zabezpieczenie integralności oraz kontrola poziomów dostępu ról
--- ====================================================================
-
--- Sekcja kont i ról serwerowych (zostawić jako komentarze na ograniczonej bazie studenckiej, 
--- odkomentować wyłącznie z poziomu superużytkownika bazy 'postgres')
+-- Uprawnienia
 DROP ROLE IF EXISTS Aplikacja_Konto;
 DROP ROLE IF EXISTS Administrator_Konto;
 CREATE ROLE Aplikacja_Konto LOGIN PASSWORD 'SilneHasloAplikacji2026!';
 CREATE ROLE Administrator_Konto LOGIN PASSWORD 'SuperAdmin2026!';
 
--- Przypisywanie bezpiecznych uprawnień (DCL) do struktur bazy danych publicznej aplikacji
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO Aplikacja_Konto;
 REVOKE DELETE ON ALL TABLES IN SCHEMA public FROM Aplikacja_Konto;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO Aplikacja_Konto;
@@ -662,19 +558,11 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO Administrator_Konto;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO Administrator_Konto;
 
 
--- --------------------------------------------------------------------
--- FAZA 3: PREZENTACJA MECHANIZMÓW IZOLACJI TRANSAKCJI
--- Wykorzystanie poziomu SERIALIZABLE do eliminacji anomalii współbieżnych
--- --------------------------------------------------------------------
+-- Izolacja
 BEGIN;
 SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 
--- Próba dodania transakcji wymiany barterowej - w tle uruchomią się zdefiniowane wyzwalacze,
--- automatycznie chroniąc bazę przed usterkami logicznymi typu Double-booking.
 INSERT INTO Transakcje (Status_Transakcji, ID_Oferty_Od, ID_Oferty_Za)
 VALUES ('W toku', 9, 10);
 
 COMMIT;
--- ====================================================================
--- KONIEC MASTER SKRYPTU INSTALACYJNEGO BAZY DANYCH
--- ====================================================================
